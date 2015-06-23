@@ -1,0 +1,48 @@
+
+<html ng-app="d3AngularApp">
+
+<head>
+
+<style>
+
+  .node circle {
+    fill: #fff;
+    stroke: steelblue;
+    stroke-width: 3px;
+  }
+
+  .node text { font: 12px sans-serif; }
+
+  .link {
+    fill: none;
+    stroke: #ccc;
+    stroke-width: 2px;
+    padding-bottom: 10px;
+  }
+ </style>
+
+</head>
+<body>
+
+	<p>This page is for Angular directive for Tree Data </p>
+
+<!-- 	<div d3-bars bar-height="20" bar-padding="5"></div> -->
+
+	<div ng-controller="MainCtrl">
+  	
+  	<d3-bars data="data"></d3-bars>
+  		<d3-bars data="data"></d3-bars>
+	<!-- 	<div ng-repeat="item in data">
+		Name: <input type="text" ng-model="item.name"/> Score:  <input type="number" ng-model="item.score"/>
+
+	</div> -->
+</div>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.1/angular.min.js"></script>
+<script type="text/javascript" src="d3.js"></script>
+<script type="text/javascript" src="d3-example1.js"></script>
+
+</body>
+</html>
+
+
+
