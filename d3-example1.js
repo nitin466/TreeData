@@ -5,6 +5,7 @@ myApp.directive('d3Bars', ['$window', '$timeout', 'd3Service',
       restrict: 'EA',
       scope: {
         data: '=',
+        nodeList: '=',
         label: '@',
         onClick: '&'
       },
@@ -118,15 +119,20 @@ myApp.directive('d3Bars', ['$window', '$timeout', 'd3Service',
         .attr("height", height + margin.top + margin.bottom)
         .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        
 
+      var nList = [];
       root = scope.data[0];
+      nList = scope.nodeList; 
         
       update(root);
+      console.log(scope.nodeList);
+      console.log(root);
 
           function update(source) {
 
-                      // Compute the new tree layout.
-            var nodes = tree.nodes(root).reverse(),
+            // Compute the new tree layout.
+            var nodes = tree.nodes(source).reverse(),
               links = tree.links(nodes);
 
             // Normalize for fixed-depth.
@@ -135,6 +141,12 @@ myApp.directive('d3Bars', ['$window', '$timeout', 'd3Service',
             // Declare the nodesâ€¦
             var node = svg.selectAll("g.node")
               .data(nodes, function(d) { return d.id || (d.id = ++i); });
+              
+              console.log(node[0]);
+               console.log(node[0].length);
+                //console.log(root); 
+                //console.log(emptyAr);
+            
 
             // Enter the nodes.
             var nodeEnter = node.enter().append("g")
@@ -144,7 +156,11 @@ myApp.directive('d3Bars', ['$window', '$timeout', 'd3Service',
 
             nodeEnter.append("circle")
               .attr("r", 10)
-              .style("fill", "#fff");
+              .style("fill", "#fff")
+              .on('click', function(node) {
+                console.log("node is", node);
+                  return scope.onClick(node);
+              });
 
             nodeEnter.append("text")
               .attr("x", function(d) { 
@@ -194,7 +210,23 @@ myApp.directive('d3Bars', ['$window', '$timeout', 'd3Service',
       {name: 'Q', score: 75},
       {name: "Loser", score: 48} ]*/
 
-      $scope.data = [
+
+        $scope.onClick = function(item) {
+          alert("hi");
+          $scope.$apply(function() {
+            alert("Hello");
+            if (!$scope.showDetailPanel)
+              $scope.showDetailPanel = true;
+            $scope.detailItem = item;
+            console.log(item);
+          });
+        };
+
+
+
+
+      $scope.nodeList = ['table', 'chair', 'book'];
+      $scope.data1 = [
       {
         "name": "root",
         "parent": "null",
@@ -242,55 +274,42 @@ myApp.directive('d3Bars', ['$window', '$timeout', 'd3Service',
         ]
       }
     ];
-
     $scope.data = [
-      {
-        "name": "root",
-        "parent": "null",
-        "children": [
-
+    {
+       "name": "flare",
+       "children": [
+        {
+         "name": "analytics",
+         "children": [
           {
-            "name": "Level 1",
-            "parent": "root",
-            "ruleId": "Rule 1",
-            "children": [
-              {
-                "name": "Level 2: A",
-                "parent": "Level 2: x",
-                "ruleId": "Rule 2",
-                "children": [
-                  {
-                    "name": "Level 3: B",
-                    "parent": "Top Level",
-                    "ruleId": "Rule 3"
-                  },
-                  {
-                    "name": "Level 3: C",
-                    "parent": "root",
-                    "ruleId": "Rule 4"
-
-                  }
-                ]
-              },
-              {
-              "name": "Level 2: D",
-              "parent": "root",
-              "ruleId": "Rule 5",
-              "children":[
-                {
-                  "name": "Level 3: E",
-                  "parent": "Top Level",
-                  "ruleId" : "Rule 5",
-                }
-
-              ]
-            }
-            ]
+           "name": "cluster",
+           "children": [
+            {"name": "AgglomerativeCluster", "size": 3938},
+            {"name": "CommunityStructure", "size": 3812},
+            {"name": "MergeEdge", "size": 743}
+           ]
+          },
+          {
+           "name": "graph",
+           "children": [
+            {"name": "BetweennessCentrality", "size": 3534},
+            {"name": "LinkDistance", "size": 5731}
+           ]
           }
-          
-        ]
+         ]
+        }
+       ]
       }
-    ];
+    ]
 
-console.log($scope.data);
+   $scope.$watch('variable', function (value) {
+        if (value) {
+            console.log(value);
+        }});
+
+console.log($scope.data[0]);
+console.log($scope.data[0].children.length);
+console.log($scope.data[0].children[0]);
+console.log($scope.data[0].children[0].children);
+
         }]);

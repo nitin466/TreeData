@@ -30,8 +30,11 @@
 
 	<div ng-controller="MainCtrl">
   	
-  	<d3-bars data="data"></d3-bars>
-  		<d3-bars data="data"></d3-bars>
+  	<d3-bars on-click="showDetailPanel(item)" data="data"></d3-bars>
+
+
+     <!-- <div ng-bind="variable"></div> -->
+
 	<!-- 	<div ng-repeat="item in data">
 		Name: <input type="text" ng-model="item.name"/> Score:  <input type="number" ng-model="item.score"/>
 
