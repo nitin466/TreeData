@@ -127,7 +127,6 @@ myApp.directive('d3Bars', ['$window', '$timeout', 'd3Service',
         
       update(root);
       console.log(scope.nodeList);
-      console.log(root);
 
           function update(source) {
 
@@ -159,7 +158,7 @@ myApp.directive('d3Bars', ['$window', '$timeout', 'd3Service',
               .style("fill", "#fff")
               .on('click', function(node) {
                 console.log("node is", node);
-                  return scope.onClick(node);
+                  return scope.onClick({item: node});
               });
 
             nodeEnter.append("text")
@@ -196,33 +195,23 @@ myApp.directive('d3Bars', ['$window', '$timeout', 'd3Service',
           };
 
       })
-}
-}
-}
-])
+    }
+  }
+}])
 
   myApp.controller('MainCtrl', ['$scope', function($scope){
 
-    $scope.greeting = "Resize the page to see the re-rendering";
-    /*$scope.data = [
-      {name: "Greg", score: 98},
-      {name: "Ari", score: 96},
-      {name: 'Q', score: 75},
-      {name: "Loser", score: 48} ]*/
-
-
-        $scope.onClick = function(item) {
-          alert("hi");
+    //$scope.greeting = "Resize the page to see the re-rendering";
+    
+        $scope.printNode = function(item) {
           $scope.$apply(function() {
-            alert("Hello");
-            if (!$scope.showDetailPanel)
-              $scope.showDetailPanel = true;
-            $scope.detailItem = item;
+            if (!$scope.printNode)
+              $scope.printNode = true;
+              $scope.detailItem = item;
+            
             console.log(item);
           });
         };
-
-
 
 
       $scope.nodeList = ['table', 'chair', 'book'];
@@ -302,14 +291,14 @@ myApp.directive('d3Bars', ['$window', '$timeout', 'd3Service',
       }
     ]
 
-   $scope.$watch('variable', function (value) {
+   /*$scope.$watch('variable', function (value) {
         if (value) {
             console.log(value);
-        }});
+        }});*/
 
-console.log($scope.data[0]);
-console.log($scope.data[0].children.length);
-console.log($scope.data[0].children[0]);
-console.log($scope.data[0].children[0].children);
+    console.log($scope.data[0]);
+    console.log($scope.data[0].children.length);
+    console.log($scope.data[0].children[0]);
+    console.log($scope.data[0].children[0].children);
 
-        }]);
+ }]);
