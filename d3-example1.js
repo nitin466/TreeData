@@ -105,6 +105,10 @@ myApp.directive('d3Bars', ['$window', '$timeout', 'd3Service',
       var margin = {top: 20, right: 120, bottom: 20, left: 120},
         width = 960 - margin.right - margin.left,
         height = 500 - margin.top - margin.bottom;
+
+        var i = 0,
+        duration = 750,
+        root;
         
       var i = 0;
 
@@ -126,13 +130,14 @@ myApp.directive('d3Bars', ['$window', '$timeout', 'd3Service',
       nList = scope.nodeList; 
         
       update(root);
-      console.log(scope.nodeList);
+      d3.select(self.frameElement).style("height", "500px");
 
           function update(source) {
 
             // Compute the new tree layout.
             var nodes = tree.nodes(source).reverse(),
               links = tree.links(nodes);
+              scope.nodes = nodes;
 
             // Normalize for fixed-depth.
             nodes.forEach(function(d) { d.y = d.depth * 180; });
@@ -150,12 +155,30 @@ myApp.directive('d3Bars', ['$window', '$timeout', 'd3Service',
             // Enter the nodes.
             var nodeEnter = node.enter().append("g")
               .attr("class", "node")
-              .attr("transform", function(d) { 
-                return "translate(" + d.y + "," + d.x + ")"; });
+              
 
-            nodeEnter.append("circle")
-              .attr("r", 10)
+              .attr("transform", function(d) { return "translate(" + source.y + "," + source.x + ")"; })
+    .on("click", click);
+
+              // Toggle children on click.
+          function click(d) {
+            if (d.children) {
+            d._children = d.children;
+            d.children = null;
+            } else {
+            d.children = d._children;
+            d._children = null;
+            }
+            update(root);
+          }
+
+            nodeEnter.append("circle")  
+              //.attr("r", 10)
               .style("fill", "#fff")
+              .attr("r", 10)
+              .attr("tooltip-append-to-body", true)
+              .attr("tooltip", function(d){
+                 return d.name; })
               .on('click', function(node) {
                 console.log("node is", node);
                   return scope.onClick({item: node});
@@ -183,16 +206,91 @@ myApp.directive('d3Bars', ['$window', '$timeout', 'd3Service',
               .text(function(d) { return d.ruleId; })
               .style("fill-opacity", 1);
 
-            // Declare the linksâ€¦
+
+
+              // Transition nodes to their new position.
+              var nodeUpdate = node.transition()
+                .duration(duration)
+                .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
+
+
+                nodeUpdate.select("circle")
+                .attr("r", 10)
+                .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+
+              nodeUpdate.select("text")
+                .style("fill-opacity", 1);
+
+                // Transition exiting nodes to the parent's new position.
+              var nodeExit = node.exit().transition()
+                .duration(duration)
+                .attr("transform", function(d) { return "translate(" + source.y + "," + source.x + ")"; })
+                .remove();
+
+              nodeExit.select("circle")
+                .attr("r", 1e-6);
+
+              nodeExit.select("text")
+                .style("fill-opacity", 1e-6);
+
+                // Update the links…
+              var link = svg.selectAll("path.link")
+                .data(links, function(d) { return d.target.id; });
+
+              // Enter any new links at the parent's previous position.
+              link.enter().insert("path", "g")
+                .attr("class", "link")
+                .attr("d", function(d) {
+                var o = {x: source.x0, y: source.y0};
+                return diagonal({source: o, target: o});
+                });
+
+              // Transition links to their new position.
+              link.transition()
+                .duration(duration)
+                .attr("d", diagonal);
+
+              // Transition exiting nodes to the parent's new position.
+              link.exit().transition()
+                .duration(duration)
+                .attr("d", function(d) {
+                var o = {x: source.x, y: source.y};
+                return diagonal({source: o, target: o});
+                })
+                .remove();  
+
+                // Stash the old positions for transition.
+                nodes.forEach(function(d) {
+                d.x0 = d.x;
+                d.y0 = d.y;
+                });
+
+ /*// Toggle children on click.
+          function click(d) {
+            if (d.children) {
+            d._children = d.children;
+            d.children = null;
+            } else {
+            d.children = d._children;
+            d._children = null;
+            }
+            update(d);
+          }*/
+
+
+          /*  // Declare the linksâ€¦
             var link = svg.selectAll("path.link")
               .data(links, function(d) { return d.target.id; });
 
             // Enter the links.
             link.enter().insert("path", "g")
               .attr("class", "link")
-              .attr("d", diagonal);
+              .attr("d", diagonal);*/
 
           };
+
+
+         
 
       })
     }
@@ -203,17 +301,20 @@ myApp.directive('d3Bars', ['$window', '$timeout', 'd3Service',
 
     //$scope.greeting = "Resize the page to see the re-rendering";
     
+      //$scope.nodes = nodes
+      console.log($scope.data);
+      $scope.itemDetails = undefined;
         $scope.printNode = function(item) {
           $scope.$apply(function() {
             if (!$scope.printNode)
               $scope.printNode = true;
-              $scope.detailItem = item;
+              $scope.itemDetails = item;
             
             console.log(item);
           });
         };
 
-
+        console.log($scope.itemDetails);
       $scope.nodeList = ['table', 'chair', 'book'];
       $scope.data1 = [
       {
@@ -296,7 +397,7 @@ myApp.directive('d3Bars', ['$window', '$timeout', 'd3Service',
             console.log(value);
         }});*/
 
-    console.log($scope.data[0]);
+    console.log($scope.data[0].children);
     console.log($scope.data[0].children.length);
     console.log($scope.data[0].children[0]);
     console.log($scope.data[0].children[0].children);
